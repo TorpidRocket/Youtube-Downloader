@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Download YouTube videos and audio files easily">
+    <title>YouTube Downloader - Free Video & Audio Download</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">🎬</span>
+                    <span class="logo-text">YT Downloader</span>
+                </div>
+                <nav class="nav">
+                    <button class="nav-btn active" data-tab="download">
+                        <span class="nav-icon">⬇️</span>
+                        Download
+                    </button>
+                    <button class="nav-btn" data-tab="history">
+                        <span class="nav-icon">📜</span>
+                        History
+                    </button>
+                    <button class="nav-btn" data-tab="stats">
+                        <span class="nav-icon">📊</span>
+                        Stats
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            
+            <!-- Download Tab -->
+            <section id="download-tab" class="tab-content active">
+                <div class="hero">
+                    <h1 class="hero-title">Download YouTube Videos & Audio</h1>
+                    <p class="hero-subtitle">Fast, free, and easy. No ads, no registration required.</p>
+                </div>
+
+                <!-- URL Input Section -->
+                <div class="input-section">
+                    <div class="input-wrapper">
+                        <input 
+                            type="text" 
+                            id="url-input" 
+                            class="url-input" 
+                            placeholder="Paste YouTube URL here (e.g., https://youtube.com/watch?v=...)"
+                            autocomplete="off"
+                        >
+                        <button id="fetch-info-btn" class="btn btn-primary">
+                            <span class="btn-icon">🔍</span>
+                            Get Info
+                        </button>
+                    </div>
+                    <p class="input-hint">Supports YouTube, Vimeo, SoundCloud, and 1000+ more sites</p>
+                </div>
+
+                <!-- Video Info Section (Hidden by default) -->
+                <div id="video-info-section" class="video-info-section hidden">
+                    <div class="video-info-card">
+                        <div class="video-thumbnail">
+                            <img id="video-thumbnail" src="" alt="Video thumbnail">
+                            <div class="video-duration">
+                                <span id="video-duration">0:00</span>
+                            </div>
+                        </div>
+                        <div class="video-details">
+                            <h2 id="video-title" class="video-title">Video Title</h2>
+                            <p class="video-meta">
+                                <span id="video-uploader">Uploader</span>
+                                <span class="separator">•</span>
+                                <span id="video-views">0 views</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Download Options -->
+                    <div class="download-options">
+                        <div class="option-group">
+                            <label class="option-label">Download Type</label>
+                            <div class="btn-group">
+                                <button class="option-btn active" data-type="video">
+                                    <span class="option-icon">🎥</span>
+                                    Video
+                                </button>
+                                <button class="option-btn" data-type="audio">
+                                    <span class="option-icon">🎵</span>
+                                    Audio (MP3)
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="option-group" id="quality-group">
+                            <label class="option-label">Video Quality</label>
+                            <select id="quality-select" class="quality-select">
+                                <option value="best">Best Quality</option>
+                                <option value="1080">1080p (Full HD)</option>
+                                <option value="720">720p (HD)</option>
+                                <option value="480">480p (SD)</option>
+                                <option value="360">360p</option>
+                            </select>
+                        </div>
+
+                        <button id="download-btn" class="btn btn-download">
+                            <span class="btn-icon">⬇️</span>
+                            Start Download
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Progress Section (Hidden by default) -->
+                <div id="progress-section" class="progress-section hidden">
+                    <div class="progress-card">
+                        <div class="progress-header">
+                            <h3 class="progress-title">Downloading...</h3>
+                            <span id="progress-status" class="progress-status">Starting...</span>
+                        </div>
+                        
+                        <div class="progress-bar-wrapper">
+                            <div class="progress-bar">
+                                <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <span id="progress-percent" class="progress-percent">0%</span>
+                        </div>
+
+                        <div class="progress-stats">
+                            <div class="progress-stat">
+                                <span class="stat-label">Speed:</span>
+                                <span id="progress-speed" class="stat-value">-</span>
+                            </div>
+                            <div class="progress-stat">
+                                <span class="stat-label">ETA:</span>
+                                <span id="progress-eta" class="stat-value">-</span>
+                            </div>
+                            <div class="progress-stat">
+                                <span class="stat-label">Downloaded:</span>
+                                <span id="progress-downloaded" class="stat-value">-</span>
+                            </div>
+                        </div>
+
+                        <button id="cancel-btn" class="btn btn-secondary hidden">
+                            <span class="btn-icon">❌</span>
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Success Section (Hidden by default) -->
+                <div id="success-section" class="success-section hidden">
+                    <div class="success-card">
+                        <div class="success-icon">✅</div>
+                        <h3 class="success-title">Download Complete!</h3>
+                        <p class="success-message">Your file is ready.</p>
+                        <div class="success-actions">
+                            <a id="download-file-btn" href="#" class="btn btn-success" download>
+                                <span class="btn-icon">💾</span>
+                                Download File
+                            </a>
+                            <button id="new-download-btn" class="btn btn-secondary">
+                                <span class="btn-icon">🔄</span>
+                                New Download
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error Section (Hidden by default) -->
+                <div id="error-section" class="error-section hidden">
+                    <div class="error-card">
+                        <div class="error-icon">❌</div>
+                        <h3 class="error-title">Error Occurred</h3>
+                        <p id="error-message" class="error-message">Something went wrong.</p>
+                        <button id="retry-btn" class="btn btn-primary">
+                            <span class="btn-icon">🔄</span>
+                            Try Again
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- History Tab -->
+            <section id="history-tab" class="tab-content">
+                <div class="section-header">
+                    <h2 class="section-title">Download History</h2>
+                    <button id="refresh-history-btn" class="btn btn-secondary btn-sm">
+                        <span class="btn-icon">🔄</span>
+                        Refresh
+                    </button>
+                </div>
+
+                <div id="history-list" class="history-list">
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <p class="empty-text">No downloads yet</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats Tab -->
+            <section id="stats-tab" class="tab-content">
+                <div class="section-header">
+                    <h2 class="section-title">Server Statistics</h2>
+                    <button id="refresh-stats-btn" class="btn btn-secondary btn-sm">
+                        <span class="btn-icon">🔄</span>
+                        Refresh
+                    </button>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📁</div>
+                        <div class="stat-info">
+                            <p class="stat-label">Total Files</p>
+                            <p id="stat-total-files" class="stat-value">-</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">💾</div>
+                        <div class="stat-info">
+                            <p class="stat-label">Storage Used</p>
+                            <p id="stat-storage" class="stat-value">-</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">⬇️</div>
+                        <div class="stat-info">
+                            <p class="stat-label">Active Downloads</p>
+                            <p id="stat-active" class="stat-value">-</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-info">
+                            <p class="stat-label">Completed</p>
+                            <p id="stat-completed" class="stat-value">-</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cleanup-section">
+                    <h3 class="cleanup-title">Storage Management</h3>
+                    <p class="cleanup-description">
+                        The server automatically keeps the 5 most recent files. Older files are deleted automatically.
+                    </p>
+                    <button id="manual-cleanup-btn" class="btn btn-primary">
+                        <span class="btn-icon">🗑️</span>
+                        Manual Cleanup Now
+                    </button>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                Made with ❤️ using <strong>yt-dlp</strong> | 
+                <a href="https://github.com/yt-dlp/yt-dlp" target="_blank" class="footer-link">Learn More</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden">
+        <span id="toast-message"></span>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
