@@ -187,6 +187,7 @@ def download_video():
                 'format': 'bestaudio/best',
                 'outtmpl': output_template,
                 'progress_hooks': [ProgressHook(download_id)],
+                'cookiefile': 'youtube_cookies.txt',
                 'postprocessors': [{
                     'key': 'FFmpegExtractAudio',
                     'preferredcodec': audio_format,
@@ -206,6 +207,7 @@ def download_video():
                 'outtmpl': output_template,
                 'progress_hooks': [ProgressHook(download_id)],
                 'merge_output_format': 'mp4',
+                'cookiefile': 'youtube_cookies.txt',
                 'postprocessors': [{
                     'key': 'FFmpegVideoConvertor',
                     'preferedformat': 'mp4',
