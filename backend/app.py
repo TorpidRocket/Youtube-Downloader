@@ -109,6 +109,7 @@ def get_video_info():
             'quiet': True,
             'no_warnings': True,
             'extract_flat': False,
+            'cookiefile': 'youtube_cookies.txt',
         }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
