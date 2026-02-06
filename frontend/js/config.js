@@ -9,7 +9,7 @@ const CONFIG = {
     // Auto-detect API URL
     API_BASE_URL: isLocal 
         ? 'http://localhost:5000' 
-        : 'https://youtube-downloader-api.onrender.com',  // ← UPDATE THIS AFTER DEPLOYMENT
+        : 'https://youtube-downloader-api-r0za.onrender.com',  //Url on Render
     
     ENDPOINTS: {
         INFO: '/api/info',
