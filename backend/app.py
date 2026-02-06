@@ -30,6 +30,24 @@ DOWNLOAD_FOLDER = Path(os.environ.get('DOWNLOAD_FOLDER', 'downloads'))
 DOWNLOAD_FOLDER.mkdir(exist_ok=True)
 MAX_FILES_TO_KEEP = 5
 
+# In app.py, add this helper function at the top:
+def clean_youtube_url(url):
+    """Remove extra parameters from YouTube URL"""
+    import re
+    # Extract video ID
+    patterns = [
+        r'(?:v=|\/)([0-9A-Za-z_-]{11}).*',
+        r'(?:embed\/)([0-9A-Za-z_-]{11})',
+        r'(?:watch\?v=)([0-9A-Za-z_-]{11})',
+    ]
+    
+    for pattern in patterns:
+        match = re.search(pattern, url)
+        if match:
+            video_id = match.group(1)
+            return f'https://www.youtube.com/watch?v={video_id}'
+    
+    return url
 # Store download progress and metadata
 download_progress = {}
 download_metadata = {}
@@ -161,8 +179,13 @@ def download_video():
     """Download video or audio"""
     data = request.json
     url = data.get('url')
+
+    url = clean_youtube_url(url)  # ← ADD THIS
+    logger.info(f"Cleaned URL: {url}")
+    
     download_type = data.get('type', 'video')
     quality = data.get('quality', 'best')
+    
     audio_format = data.get('audio_format', 'mp3')
     
     if not url:
@@ -198,42 +221,20 @@ def download_video():
             }
         else:  # video
             # Build format string with progressive fallbacks
-            format_options = []
-            
+    # Ultra-simple format selection for debugging
             if quality == 'best':
-                format_options = [
-                    'bestvideo[ext=mp4]+bestaudio[ext=m4a]',
-                    'bestvideo[ext=mp4]+bestaudio',
-                    'bestvideo+bestaudio[ext=m4a]',
-                    'bestvideo+bestaudio',
-                    'best[ext=mp4]',
-                    'best',
-                ]
+                format_string = 'best'
             else:
-                format_options = [
-                    f'bestvideo[ext=mp4][height<={quality}]+bestaudio[ext=m4a]',
-                    f'bestvideo[ext=mp4][height<={quality}]+bestaudio',
-                    f'bestvideo[height<={quality}]+bestaudio[ext=m4a]',
-                    f'bestvideo[height<={quality}]+bestaudio',
-                    f'best[ext=mp4][height<={quality}]',
-                    f'best[height<={quality}]',
-                    'bestvideo[ext=mp4]+bestaudio',
-                    'best[ext=mp4]',
-                    'best',
-                ]
+                # Try specific quality, fall back to best
+                format_string = f'best[height<={quality}]/best'
             
-            format_string = '/'.join(format_options)
+            logger.info(f"Using format string: {format_string}")
             
             ydl_opts = {
                 'format': format_string,
                 'outtmpl': output_template,
                 'progress_hooks': [ProgressHook(download_id)],
-                'merge_output_format': 'mp4',
                 **get_cookie_opts(),
-                'postprocessors': [{
-                    'key': 'FFmpegVideoRemuxer',
-                    'preferedformat': 'mp4',
-                }],
                 'quiet': False,
                 'no_warnings': False,
             }
@@ -242,9 +243,21 @@ def download_video():
         def download_task():
             try:
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    # First, get video info to see available formats
+                    logger.info(f"Fetching available formats for {url}")
+                    info = ydl.extract_info(url, download=False)
+                    
+                    # Log available formats
+                    if 'formats' in info:
+                        logger.info(f"Available formats: {len(info['formats'])} formats found")
+                        for fmt in info['formats'][:5]:  # Log first 5 formats
+                            logger.info(f"Format: {fmt.get('format_id')} - {fmt.get('format')} - {fmt.get('ext')}")
+                    
+                    # Now download
+                    logger.info(f"Starting actual download with format: {ydl_opts.get('format')}")
                     info = ydl.extract_info(url, download=True)
                     filename = ydl.prepare_filename(info)
-                    
+                            
                     # For audio, the filename will have the audio extension after postprocessing
                     if download_type == 'audio':
                         filename = filename.rsplit('.', 1)[0] + f'.{audio_format}'
