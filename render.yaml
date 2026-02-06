@@ -1,5 +1,5 @@
 services:
-  # Backend API (Must be type: web)
+  # Backend API
   - type: web
     name: youtube-downloader-api
     env: python
@@ -13,9 +13,9 @@ services:
         value: /tmp/downloads
 
   # Frontend Static Site
-  - type: static
+  - type: web          # Change 'static' to 'web'
     name: youtube-downloader-frontend
-    env: static
-    # No plan: free needed for static sites
-    buildCommand: "" # Leave empty if you have no build step
-    staticPublishPath: ./frontend 
+    env: static        # This is what makes it a static site
+    # Removed 'plan: free' entirely
+    buildCommand: "" 
+    staticPublishPath: ./frontend
