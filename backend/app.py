@@ -161,9 +161,9 @@ def download_video():
     """Download video or audio"""
     data = request.json
     url = data.get('url')
-    download_type = data.get('type', 'video')  # 'video' or 'audio'
+    download_type = data.get('type', 'video')
     quality = data.get('quality', 'best')
-    audio_format = data.get('audio_format', 'mp3')  # For audio downloads
+    audio_format = data.get('audio_format', 'mp3')
     
     if not url:
         return jsonify({'error': 'URL is required'}), 400
@@ -187,7 +187,7 @@ def download_video():
                 'format': 'bestaudio/best',
                 'outtmpl': output_template,
                 'progress_hooks': [ProgressHook(download_id)],
-                'cookiefile': 'youtube_cookies.txt',
+                **get_cookie_opts(),
                 'postprocessors': [{
                     'key': 'FFmpegExtractAudio',
                     'preferredcodec': audio_format,
@@ -197,22 +197,43 @@ def download_video():
                 'no_warnings': False,
             }
         else:  # video
+            # Build format string with progressive fallbacks
+            format_options = []
+            
             if quality == 'best':
-                format_string = 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'
+                format_options = [
+                    'bestvideo[ext=mp4]+bestaudio[ext=m4a]',
+                    'bestvideo[ext=mp4]+bestaudio',
+                    'bestvideo+bestaudio[ext=m4a]',
+                    'bestvideo+bestaudio',
+                    'best[ext=mp4]',
+                    'best',
+                ]
             else:
-                format_string = f'bestvideo[ext=mp4][height<={quality}]+bestaudio[ext=m4a]/best[ext=mp4][height<={quality}]/best'
+                format_options = [
+                    f'bestvideo[ext=mp4][height<={quality}]+bestaudio[ext=m4a]',
+                    f'bestvideo[ext=mp4][height<={quality}]+bestaudio',
+                    f'bestvideo[height<={quality}]+bestaudio[ext=m4a]',
+                    f'bestvideo[height<={quality}]+bestaudio',
+                    f'best[ext=mp4][height<={quality}]',
+                    f'best[height<={quality}]',
+                    'bestvideo[ext=mp4]+bestaudio',
+                    'best[ext=mp4]',
+                    'best',
+                ]
+            
+            format_string = '/'.join(format_options)
             
             ydl_opts = {
                 'format': format_string,
                 'outtmpl': output_template,
                 'progress_hooks': [ProgressHook(download_id)],
                 'merge_output_format': 'mp4',
-                'cookiefile': 'youtube_cookies.txt',
+                **get_cookie_opts(),
                 'postprocessors': [{
-                    'key': 'FFmpegVideoConvertor',
+                    'key': 'FFmpegVideoRemuxer',
                     'preferedformat': 'mp4',
                 }],
-                'prefer_ffmpeg': True,
                 'quiet': False,
                 'no_warnings': False,
             }
@@ -270,7 +291,6 @@ def download_video():
     except Exception as e:
         logger.error(f"Error starting download: {e}")
         return jsonify({'error': str(e)}), 400
-
 
 @app.route('/api/progress/<download_id>', methods=['GET'])
 def get_progress(download_id):
