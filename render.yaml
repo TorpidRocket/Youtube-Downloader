@@ -17,7 +17,7 @@ services:
   - type: web
     name: youtube-downloader-frontend
     env: static
-    region: oregon
+    #region: oregon
     plan: free
     buildCommand: ""
     staticPublishPath: ./frontend
