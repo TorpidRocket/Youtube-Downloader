@@ -407,10 +407,14 @@ def internal_error(e):
 
 
 if __name__ == '__main__':
+    import os
+    
     logger.info("=" * 60)
     logger.info("YouTube Downloader API Server Starting...")
     logger.info(f"Download folder: {DOWNLOAD_FOLDER.absolute()}")
     logger.info(f"Max files to keep: {MAX_FILES_TO_KEEP}")
     logger.info("=" * 60)
     
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Get port from environment variable (for Render) or use 5000
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=False, host='0.0.0.0', port=port)
