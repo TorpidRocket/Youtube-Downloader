@@ -25,7 +25,8 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS for frontend requests
 
 # Configuration
-DOWNLOAD_FOLDER = Path('C:/Users/Archit/Downloads/yt-downloader')
+import os
+DOWNLOAD_FOLDER = Path(os.environ.get('DOWNLOAD_FOLDER', 'downloads'))
 DOWNLOAD_FOLDER.mkdir(exist_ok=True)
 MAX_FILES_TO_KEEP = 5
 
@@ -407,14 +408,13 @@ def internal_error(e):
 
 
 if __name__ == '__main__':
-    import os
+    port = int(os.environ.get('PORT', 5000))
     
     logger.info("=" * 60)
     logger.info("YouTube Downloader API Server Starting...")
     logger.info(f"Download folder: {DOWNLOAD_FOLDER.absolute()}")
     logger.info(f"Max files to keep: {MAX_FILES_TO_KEEP}")
+    logger.info(f"Port: {port}")
     logger.info("=" * 60)
     
-    # Get port from environment variable (for Render) or use 5000
-    port = int(os.environ.get('PORT', 5000))
     app.run(debug=False, host='0.0.0.0', port=port)

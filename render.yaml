@@ -1,6 +1,23 @@
 services:
+  # Backend API
   - type: web
-    name: youtube-downloader
+    name: youtube-downloader-api
     env: python
-    buildCommand: "chmod +x render-build.sh && ./render-build.sh"
+    region: oregon
+    plan: free
+    buildCommand: "pip install -r requirements.txt && apt-get update && apt-get install -y ffmpeg"
     startCommand: "gunicorn app:app"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DOWNLOAD_FOLDER
+        value: /opt/render/project/src/downloads
+
+  # Frontend Static Site
+  - type: web
+    name: youtube-downloader-frontend
+    env: static
+    region: oregon
+    plan: free
+    buildCommand: ""
+    staticPublishPath: ./frontend
